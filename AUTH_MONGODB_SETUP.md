@@ -67,4 +67,4 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Guests can browse and add items to the basket, but the server rejects order creation until the user signs in. Admin users can open **Manage Products** from the signed-in account menu to add or delete catalogue items.
+Guests can browse and add items to the basket, but the server rejects order creation until the user signs in. Admin users can open the protected `/admin` route from the signed-in account menu to add, edit, or delete catalogue items.

@@ -14,7 +14,6 @@ export const Navbar: React.FC = () => {
     wishlist,
     user,
     isAdmin,
-    setIsAdminPanelOpen,
     setIsAuthOpen,
     logout,
   } = useShop();
@@ -118,6 +117,17 @@ export const Navbar: React.FC = () => {
               </span>
             </button>
 
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="hidden md:inline-flex items-center gap-2 rounded-full bg-[#D97757] px-3.5 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#C85A3A] hover:scale-105"
+                aria-label="Open admin dashboard"
+              >
+                <Settings className="h-4 w-4" />
+                <span>Admin</span>
+              </Link>
+            )}
+
             {/* Firebase Auth Account Button */}
             {user ? (
               <div className="relative group">
@@ -141,14 +151,13 @@ export const Navbar: React.FC = () => {
                     <p className="text-[10px] text-gray-500 truncate">{user.email}</p>
                   </div>
                   {isAdmin && (
-                    <button
-                      type="button"
-                      onClick={() => setIsAdminPanelOpen(true)}
+                    <Link
+                      href="/admin"
                       className="w-full text-left px-4 py-2 text-xs text-[#1E3A2B] hover:bg-[#F4EFE6] flex items-center gap-2 transition-colors"
                     >
                       <Settings className="w-3.5 h-3.5" />
                       Manage Products
-                    </button>
+                    </Link>
                   )}
                   <button
                     type="button"
@@ -196,17 +205,16 @@ export const Navbar: React.FC = () => {
               </a>
             ))}
           {user && isAdmin && (
-            <button
-              type="button"
+            <Link
+              href="/admin"
               onClick={() => {
                 setMobileMenuOpen(false);
-                setIsAdminPanelOpen(true);
               }}
               className="w-full flex items-center justify-center gap-2 text-sm font-bold text-[#1E3A2B] bg-[#F4EFE6] py-3 rounded-full border border-[#8A9A86]/30"
             >
               <Settings className="w-4 h-4 text-[#D97757]" />
               Manage Products
-            </button>
+            </Link>
           )}
           {!user && (
             <button

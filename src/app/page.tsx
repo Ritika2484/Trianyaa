@@ -18,7 +18,6 @@ import { AuthModal } from "@/components/AuthModal";
 import { ProductModal } from "@/components/ProductModal";
 import { TutorialModal } from "@/components/TutorialModal";
 import { Toast } from "@/components/Toast";
-import { AdminProductManager } from "@/components/AdminProductManager";
 
 export default function Home() {
   return (
@@ -63,7 +62,6 @@ export default function Home() {
         <ProductModal />
         <TutorialModal />
         <Toast />
-        <AdminProductManager />
       </main>
     </ShopProvider>
   );

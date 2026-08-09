@@ -46,7 +46,9 @@ interface ShopContextType {
 
   // Auth Modal & User
   user: User | null;
+  isAuthLoading: boolean;
   isAdmin: boolean;
+  isAdminLoading: boolean;
   isAuthOpen: boolean;
   setIsAuthOpen: (open: boolean) => void;
   loginWithGoogle: () => Promise<void>;
@@ -58,8 +60,6 @@ interface ShopContextType {
   products: Product[];
   isProductsLoading: boolean;
   refreshProducts: () => Promise<void>;
-  isAdminPanelOpen: boolean;
-  setIsAdminPanelOpen: (open: boolean) => void;
 
   // Coupon
   appliedCoupon: string | null;
@@ -90,8 +90,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Auth State
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isAdminLoading, setIsAdminLoading] = useState(true);
 
   // Product catalog state starts with the local catalogue so the public landing page remains usable
   // while MongoDB is loading or has not been configured yet.
@@ -106,6 +107,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setIsAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -136,10 +138,11 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loadRole = async () => {
       if (!user) {
         setIsAdmin(false);
-        setIsAdminPanelOpen(false);
+        setIsAdminLoading(false);
         return;
       }
 
+      setIsAdminLoading(true);
       try {
         const token = await user.getIdToken();
         const response = await fetch("/api/auth/me", {
@@ -147,9 +150,15 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
           cache: "no-store",
         });
         const data: { isAdmin?: boolean } = await response.json();
-        if (!cancelled) setIsAdmin(response.ok && data.isAdmin === true);
+        if (!cancelled) {
+          setIsAdmin(response.ok && data.isAdmin === true);
+          setIsAdminLoading(false);
+        }
       } catch {
-        if (!cancelled) setIsAdmin(false);
+        if (!cancelled) {
+          setIsAdmin(false);
+          setIsAdminLoading(false);
+        }
       }
     };
 
@@ -296,7 +305,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         activeTutorial,
         setActiveTutorial,
         user,
+        isAuthLoading,
         isAdmin,
+        isAdminLoading,
         isAuthOpen,
         setIsAuthOpen,
         loginWithGoogle,
@@ -306,8 +317,6 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         products,
         isProductsLoading,
         refreshProducts,
-        isAdminPanelOpen,
-        setIsAdminPanelOpen,
         appliedCoupon,
         applyCoupon,
         discountAmount,
