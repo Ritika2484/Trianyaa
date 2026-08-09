@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { Product, FEATURED_PRODUCTS, Tutorial } from "@/data/products";
+import { Product, Tutorial } from "@/data/products";
 import { auth, googleProvider } from "@/lib/firebase";
 import {
   createUserWithEmailAndPassword,
@@ -96,9 +96,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdminLoading, setIsAdminLoading] = useState(true);
   const [adminError, setAdminError] = useState<string | null>(null);
 
-  // Product catalog state starts with the local catalogue so the public landing page remains usable
-  // while MongoDB is loading or has not been configured yet.
-  const [products, setProducts] = useState<Product[]>(FEATURED_PRODUCTS);
+  // The storefront catalog is sourced exclusively from MongoDB.
+  const [products, setProducts] = useState<Product[]>([]);
   const [isProductsLoading, setIsProductsLoading] = useState(true);
 
   // Coupon & Discount state
@@ -118,11 +117,14 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsProductsLoading(true);
     try {
       const response = await fetch("/api/products", { cache: "no-store" });
-      if (!response.ok) return;
+      if (!response.ok) {
+        setProducts([]);
+        return;
+      }
       const data: { products?: Product[] } = await response.json();
-      if (Array.isArray(data.products)) setProducts(data.products);
+      setProducts(Array.isArray(data.products) ? data.products : []);
     } catch {
-      // The local catalogue remains visible when the database is unavailable.
+      setProducts([]);
     } finally {
       setIsProductsLoading(false);
     }

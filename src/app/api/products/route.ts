@@ -1,4 +1,3 @@
-import { FEATURED_PRODUCTS } from "@/data/products";
 import { connectToDatabase } from "@/lib/mongodb";
 import { serializeProduct, type ProductRecord } from "@/lib/product-serialization";
 import { parseProductPayload, toProductDocument } from "@/lib/product-payload";
@@ -7,27 +6,9 @@ import { ProductModel } from "@/models/Product";
 
 export const dynamic = "force-dynamic";
 
-async function seedDefaultProductsIfEmpty() {
-  if (process.env.SEED_PRODUCTS_ON_EMPTY === "false") return;
-  if (await ProductModel.exists({})) return;
-
-  const seed = FEATURED_PRODUCTS.map(({ id, isNew, ...product }) => ({
-    ...product,
-    isNewArrival: isNew,
-    productId: id,
-  }));
-
-  try {
-    await ProductModel.insertMany(seed, { ordered: false });
-  } catch {
-    // A concurrent first request may have inserted the same seed records already.
-  }
-}
-
 export async function GET() {
   try {
     await connectToDatabase();
-    await seedDefaultProductsIfEmpty();
     const products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
     return Response.json({ products: products.map((product) => serializeProduct(product as unknown as ProductRecord)) });
   } catch (error) {

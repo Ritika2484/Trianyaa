@@ -51,7 +51,7 @@ The API secret is used only by the server to sign uploads. Never expose it throu
 2. Add its connection string to `MONGODB_URI` and optionally set `MONGODB_DB_NAME`.
 3. Allow the deployed server's IP/network in MongoDB Atlas.
 
-On the first successful `GET /api/products`, the six existing local catalogue items are seeded into MongoDB when the collection is empty. Set `SEED_PRODUCTS_ON_EMPTY=false` if you want to seed manually.
+`GET /api/products` only reads records that already exist in MongoDB. The storefront does not seed or fall back to the local catalogue; add products through the admin route or directly in MongoDB.
 
 The product schema stores:
 
