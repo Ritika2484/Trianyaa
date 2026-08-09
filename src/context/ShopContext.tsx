@@ -49,6 +49,7 @@ interface ShopContextType {
   isAuthLoading: boolean;
   isAdmin: boolean;
   isAdminLoading: boolean;
+  adminError: string | null;
   isAuthOpen: boolean;
   setIsAuthOpen: (open: boolean) => void;
   loginWithGoogle: () => Promise<void>;
@@ -93,6 +94,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminLoading, setIsAdminLoading] = useState(true);
+  const [adminError, setAdminError] = useState<string | null>(null);
 
   // Product catalog state starts with the local catalogue so the public landing page remains usable
   // while MongoDB is loading or has not been configured yet.
@@ -138,25 +140,33 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loadRole = async () => {
       if (!user) {
         setIsAdmin(false);
+        setAdminError(null);
         setIsAdminLoading(false);
         return;
       }
 
       setIsAdminLoading(true);
+      setAdminError(null);
       try {
         const token = await user.getIdToken();
         const response = await fetch("/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
         });
-        const data: { isAdmin?: boolean } = await response.json();
+        const data: { isAdmin?: boolean; error?: string } = await response.json();
         if (!cancelled) {
           setIsAdmin(response.ok && data.isAdmin === true);
+          setAdminError(
+            response.ok && data.isAdmin === true
+              ? null
+              : data.error || "This account is not configured as an administrator."
+          );
           setIsAdminLoading(false);
         }
       } catch {
         if (!cancelled) {
           setIsAdmin(false);
+          setAdminError("Unable to verify the admin session.");
           setIsAdminLoading(false);
         }
       }
@@ -308,6 +318,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthLoading,
         isAdmin,
         isAdminLoading,
+        adminError,
         isAuthOpen,
         setIsAuthOpen,
         loginWithGoogle,

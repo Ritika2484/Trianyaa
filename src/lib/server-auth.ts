@@ -24,16 +24,19 @@ function getBearerToken(request: Request): string | null {
 function hasAdminRole(token: DecodedIdToken): boolean {
   const claims = token as DecodedIdToken & { admin?: boolean; role?: string };
   const allowlistedEmails = new Set(
-    (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL)
-      .split(",")
+    [
+      DEFAULT_ADMIN_EMAIL,
+      ...(process.env.ADMIN_EMAILS || "").split(","),
+      ...(process.env.ADMIN_EMAIL || "").split(","),
+    ]
       .map((email) => email.trim().toLowerCase())
       .filter(Boolean)
   );
 
   return (
     claims.admin === true ||
-    claims.role === "admin" ||
-    (!!token.email && allowlistedEmails.has(token.email.toLowerCase()))
+    claims.role?.trim().toLowerCase() === "admin" ||
+    (!!token.email && allowlistedEmails.has(token.email.trim().toLowerCase()))
   );
 }
 
@@ -51,7 +54,19 @@ export async function authenticateRequest(request: Request): Promise<AuthResult>
       isAdmin: hasAdminRole(token),
       token,
     };
-  } catch {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "";
+    if (errorMessage.includes("Firebase Admin is not configured")) {
+      console.error("Firebase Admin authentication is not configured.", error);
+      return {
+        response: Response.json(
+          { error: "Server authentication is not configured. Check the Firebase Admin environment variables." },
+          { status: 503 }
+        ),
+      };
+    }
+
+    console.error("Firebase ID token verification failed.", error);
     return { response: Response.json({ error: "Invalid or expired authentication token." }, { status: 401 }) };
   }
 }

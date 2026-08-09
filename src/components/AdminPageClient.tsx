@@ -15,6 +15,7 @@ function AdminWorkspace() {
     isAdmin,
     isAuthLoading,
     isAdminLoading,
+    adminError,
     setIsAuthOpen,
     logout,
   } = useShop();
@@ -60,7 +61,7 @@ function AdminWorkspace() {
       ) : !isAdmin ? (
         <AccessCard
           title="Admin access required"
-          message={`The account ${user.email ?? "currently signed in"} is not configured as an administrator.`}
+          message={adminError || `The account ${user.email ?? "currently signed in"} is not configured as an administrator.`}
           action={<Link href="/" className="inline-flex items-center gap-2 rounded-full bg-[#1E3A2B] px-5 py-3 text-xs font-bold text-white hover:bg-[#D97757]"><ArrowLeft className="h-4 w-4" /> Return to store</Link>}
         />
       ) : (
