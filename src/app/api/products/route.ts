@@ -3,6 +3,7 @@ import { serializeProduct, type ProductRecord } from "@/lib/product-serializatio
 import { parseProductPayload, toProductDocument } from "@/lib/product-payload";
 import { requireAdmin } from "@/lib/server-auth";
 import { ProductModel } from "@/models/Product";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,10 +12,10 @@ export async function GET() {
   try {
     await connectToDatabase();
     const products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
-    return Response.json({ products: products.map((product) => serializeProduct(product as unknown as ProductRecord)) });
+    return NextResponse.json({ products: products.map((product) => serializeProduct(product as unknown as ProductRecord)) });
   } catch (error) {
     console.error("Product GET failed", error);
-    return Response.json({ error: "Product catalog is temporarily unavailable." }, { status: 503 });
+    return NextResponse.json({ error: "Product catalog is temporarily unavailable." }, { status: 503 });
   }
 }
 
@@ -24,20 +25,20 @@ export async function POST(request: Request) {
 
   try {
     const parsed = parseProductPayload(await request.json());
-    if ("error" in parsed) return Response.json({ error: parsed.error }, { status: 400 });
+    if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
     await connectToDatabase();
     const product = await ProductModel.create(toProductDocument(parsed));
 
-    return Response.json(
+    return NextResponse.json(
       { product: serializeProduct(product.toObject() as unknown as ProductRecord) },
       { status: 201 }
     );
   } catch (error) {
     if (typeof error === "object" && error !== null && "code" in error && error.code === 11000) {
-      return Response.json({ error: "A product with this id already exists." }, { status: 409 });
+      return NextResponse.json({ error: "A product with this id already exists." }, { status: 409 });
     }
     console.error("Product POST failed", error);
-    return Response.json({ error: "Unable to create product." }, { status: 500 });
+    return NextResponse.json({ error: "Unable to create product." }, { status: 500 });
   }
 }

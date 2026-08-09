@@ -1,4 +1,5 @@
 import type { DecodedIdToken } from "firebase-admin/auth";
+import { NextResponse } from "next/server";
 import { getFirebaseAdminAuth } from "@/lib/firebase-admin";
 
 export interface AuthenticatedUser {
@@ -43,7 +44,7 @@ function hasAdminRole(token: DecodedIdToken): boolean {
 export async function authenticateRequest(request: Request): Promise<AuthResult> {
   const idToken = getBearerToken(request);
   if (!idToken) {
-    return { response: Response.json({ error: "Authentication required." }, { status: 401 }) };
+    return { response: NextResponse.json({ error: "Authentication required." }, { status: 401 }) };
   }
 
   try {
@@ -59,7 +60,7 @@ export async function authenticateRequest(request: Request): Promise<AuthResult>
     if (errorMessage.includes("Firebase Admin is not configured")) {
       console.error("Firebase Admin authentication is not configured.", error);
       return {
-        response: Response.json(
+        response: NextResponse.json(
           { error: "Server authentication is not configured. Check the Firebase Admin environment variables." },
           { status: 503 }
         ),
@@ -67,7 +68,7 @@ export async function authenticateRequest(request: Request): Promise<AuthResult>
     }
 
     console.error("Firebase ID token verification failed.", error);
-    return { response: Response.json({ error: "Invalid or expired authentication token." }, { status: 401 }) };
+    return { response: NextResponse.json({ error: "Invalid or expired authentication token." }, { status: 401 }) };
   }
 }
 
@@ -75,7 +76,7 @@ export async function requireAdmin(request: Request): Promise<AuthResult> {
   const result = await authenticateRequest(request);
   if ("response" in result) return result;
   if (!result.isAdmin) {
-    return { response: Response.json({ error: "Admin access required." }, { status: 403 }) };
+    return { response: NextResponse.json({ error: "Admin access required." }, { status: 403 }) };
   }
   return result;
 }
