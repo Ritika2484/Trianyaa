@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: var(--font-serif), 'Cormorant Garamond', Georgia, serif;
+    --font-sans: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    
+    /* Brand Palette */
+    --color-oat: #F4EFE6;
+    --color-blush: #F7D6D0;
+    --color-terracotta: #D97757;
+    --color-sage: #8A9A86;
+    --color-forest: #1E3A2B;
+    --color-charcoal: #2C3531;
+    --color-ivory: #FDFBF7;
+    --color-cream: #F9F6F0;
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, .font-serif-heading {
+    font-family: var(--font-serif);
+  }
+}
+
+/* Custom Keyframe Animations */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-float {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.animate-marquee {
+  display: flex;
+  width: 200%;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Smooth custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EFE6;
+}
+::-webkit-scrollbar-thumb {
+  background: #D97757;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1E3A2B;
+}
+
+/* Admin-only form controls. This keeps the management surface aligned with the existing palette. */
+.admin-input {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #f9f6f0;
+  color: #2c3531;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: #d97757;
+  box-shadow: 0 0 0 2px rgb(217 119 87 / 20%);
+}
