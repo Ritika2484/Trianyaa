@@ -14,6 +14,8 @@ export const FeaturedProductsGrid: React.FC = () => {
     categoryFilter,
     setCategoryFilter,
     products,
+    isProductsLoading,
+    productError,
   } = useShop();
 
   const filteredProducts =
@@ -59,9 +61,21 @@ export const FeaturedProductsGrid: React.FC = () => {
           </div>
         </div>
 
-        {/* Product Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProducts.map((product) => {
+        {productError ? (
+          <div className="rounded-2xl border border-[#F7D6D0] bg-[#F7D6D0]/20 px-6 py-8 text-center text-sm text-[#8A4B3A]">
+            {productError}
+          </div>
+        ) : isProductsLoading ? (
+          <div className="rounded-2xl border border-[#F4EFE6] bg-white px-6 py-8 text-center text-sm text-gray-500">
+            Loading products from MongoDB...
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="rounded-2xl border border-[#F4EFE6] bg-white px-6 py-8 text-center text-sm text-gray-500">
+            No products are currently available.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProducts.map((product) => {
             const wishlisted = isWishlisted(product.id);
 
             return (
@@ -191,8 +205,9 @@ export const FeaturedProductsGrid: React.FC = () => {
                 </div>
               </div>
             );
-          })}
-        </div>
+            })}
+          </div>
+        )}
       </div>
     </section>
   );

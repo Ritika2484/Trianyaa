@@ -4,6 +4,7 @@ import { parseProductPayload, toProductDocument } from "@/lib/product-payload";
 import { requireAdmin } from "@/lib/server-auth";
 import { ProductModel } from "@/models/Product";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {

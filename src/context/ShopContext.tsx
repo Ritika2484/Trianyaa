@@ -60,6 +60,7 @@ interface ShopContextType {
   // Product catalog & admin controls
   products: Product[];
   isProductsLoading: boolean;
+  productError: string | null;
   refreshProducts: () => Promise<void>;
 
   // Coupon
@@ -99,6 +100,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // The storefront catalog is sourced exclusively from MongoDB.
   const [products, setProducts] = useState<Product[]>([]);
   const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const [productError, setProductError] = useState<string | null>(null);
 
   // Coupon & Discount state
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
@@ -118,13 +120,23 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await fetch("/api/products", { cache: "no-store" });
       if (!response.ok) {
+        let errorMessage = "Unable to load products from MongoDB.";
+        try {
+          const data: { error?: string } = await response.json();
+          errorMessage = data.error || errorMessage;
+        } catch {
+          // Keep the generic catalog error when the server returns no JSON body.
+        }
         setProducts([]);
+        setProductError(errorMessage);
         return;
       }
       const data: { products?: Product[] } = await response.json();
       setProducts(Array.isArray(data.products) ? data.products : []);
+      setProductError(null);
     } catch {
       setProducts([]);
+      setProductError("Unable to connect to the MongoDB product catalog.");
     } finally {
       setIsProductsLoading(false);
     }
@@ -329,6 +341,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getAuthToken,
         products,
         isProductsLoading,
+        productError,
         refreshProducts,
         appliedCoupon,
         applyCoupon,

@@ -4,6 +4,8 @@ import { authenticateRequest } from "@/lib/server-auth";
 import { OrderModel } from "@/models/Order";
 import { ProductModel } from "@/models/Product";
 
+export const runtime = "nodejs";
+
 const FREE_SHIPPING_THRESHOLD = 999;
 const SHIPPING_FEE = 79;
 

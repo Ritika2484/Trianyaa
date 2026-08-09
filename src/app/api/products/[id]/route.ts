@@ -4,6 +4,8 @@ import { serializeProduct, type ProductRecord } from "@/lib/product-serializatio
 import { requireAdmin } from "@/lib/server-auth";
 import { ProductModel } from "@/models/Product";
 
+export const runtime = "nodejs";
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
