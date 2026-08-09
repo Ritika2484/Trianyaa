@@ -10,6 +10,11 @@ export interface AuthenticatedUser {
 
 type AuthResult = AuthenticatedUser | { response: Response };
 
+// Keep the existing admin account usable on deployments where the ignored
+// `.env.local` file has not been copied into the hosting provider yet. The
+// server still verifies the Firebase ID token before this value is checked.
+const DEFAULT_ADMIN_EMAIL = "admin@gmail.com";
+
 function getBearerToken(request: Request): string | null {
   const authorization = request.headers.get("authorization");
   if (!authorization?.startsWith("Bearer ")) return null;
@@ -19,7 +24,7 @@ function getBearerToken(request: Request): string | null {
 function hasAdminRole(token: DecodedIdToken): boolean {
   const claims = token as DecodedIdToken & { admin?: boolean; role?: string };
   const allowlistedEmails = new Set(
-    (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || "")
+    (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL)
       .split(",")
       .map((email) => email.trim().toLowerCase())
       .filter(Boolean)

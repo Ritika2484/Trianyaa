@@ -20,6 +20,8 @@ Do not put an admin password in the repository. The admin password remains manag
 
 The product API checks the Firebase ID token on every create/delete request. Hiding the admin button in the client is only a convenience; it is not the security boundary.
 
+For a hosted deployment, add `ADMIN_EMAILS` to the provider's production environment variables and redeploy. If it is omitted, the current `admin@gmail.com` account remains the fallback administrator so the existing deployment does not lose the menu.
+
 ## 3. Firebase Admin credentials
 
 Create a Firebase service-account key in **Project settings → Service accounts** and map its values to:
